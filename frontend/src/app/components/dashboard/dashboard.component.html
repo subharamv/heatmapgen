@@ -1,0 +1,90 @@
+<div class="dashboard">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__icon">&#128247;</span>
+      <span class="topbar__title">People Counter</span>
+    </div>
+    <div class="topbar__stats">
+      <div class="stat" [class.stat--alert]="hasViolations">
+        <span class="stat__val">{{ totalCount }}</span>
+        <span class="stat__lbl">Total People</span>
+      </div>
+      <div class="stat stat--alert" *ngIf="hasViolations">
+        <span class="stat__val">{{ countUpdate?.violations?.length }}</span>
+        <span class="stat__lbl">Violations</span>
+      </div>
+      <div class="stat">
+        <span class="stat__val">{{ zones.length }}</span>
+        <span class="stat__lbl">Zones</span>
+      </div>
+    </div>
+    <div class="topbar__status">
+      <span class="dot" [class.dot--on]="connected"></span>
+      {{ connected ? 'Live' : 'Connecting...' }}
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="layout">
+
+    <!-- Left: Camera + tabs -->
+    <div class="layout__main">
+      <div class="tab-bar">
+        <button [class.active]="activeTab === 'live'" (click)="activeTab = 'live'">Live Feed</button>
+        <button [class.active]="activeTab === 'heatmap'" (click)="activeTab = 'heatmap'">
+          Heatmap
+        </button>
+        <div class="tab-bar__spacer"></div>
+        <app-camera-settings #camSettings></app-camera-settings>
+      </div>
+
+      <div class="panel" *ngIf="activeTab === 'live'">
+        <app-camera-feed
+          [zones]="zones"
+          [countUpdate]="countUpdate"
+          [drawingMode]="drawMode"
+          [cameraOff]="!camSettings.cameraOn"
+          [onZoneDrawn]="onPolygonDrawn.bind(this)"
+        ></app-camera-feed>
+      </div>
+
+      <div class="panel panel--heatmap" *ngIf="activeTab === 'heatmap'">
+        <app-heatmap></app-heatmap>
+      </div>
+
+      <!-- Zone counts bar -->
+      <div class="zone-counts" *ngIf="countUpdate && zones.length">
+        <div
+          *ngFor="let zone of zones"
+          class="zone-count-chip"
+          [class.zone-count-chip--alert]="countUpdate.violations | violationFor: zone.id"
+        >
+          <span class="zone-count-chip__name">{{ zone.name }}</span>
+          <span class="zone-count-chip__val">
+            {{ countUpdate.zoneCounts[zone.id] || 0 }} / {{ zone.maxCapacity }}
+          </span>
+          <div
+            class="zone-count-chip__bar"
+            [style.width.%]="((countUpdate.zoneCounts[zone.id] || 0) / zone.maxCapacity) * 100 | min: 100"
+            [class.full]="(countUpdate.zoneCounts[zone.id] || 0) >= zone.maxCapacity"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div class="layout__sidebar">
+      <app-zone-manager
+        [pendingPolygon]="pendingPolygon"
+        (drawModeChange)="onDrawModeChange($event)"
+        (zonesChanged)="onZonesChanged($event)"
+      ></app-zone-manager>
+
+      <div class="divider"></div>
+
+      <app-alerts-panel></app-alerts-panel>
+    </div>
+  </div>
+</div>

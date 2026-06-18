@@ -1,0 +1,37 @@
+<div class="zone-manager">
+  <div class="zone-manager__header">
+    <h3>Restricted Zones</h3>
+    <button class="btn-draw" [class.active]="drawMode" (click)="toggleDraw()">
+      {{ drawMode ? '&#x2715; Cancel Drawing' : '&#x2295; Draw Zone' }}
+    </button>
+  </div>
+
+  <!-- Pending polygon form -->
+  <div class="pending-form" *ngIf="pendingPolygon">
+    <p class="hint">Zone drawn ({{ pendingPolygon.length }} points). Name it to save.</p>
+    <input [(ngModel)]="newZoneName" placeholder="Zone name" class="inp" />
+    <div class="capacity-row">
+      <label>Max capacity</label>
+      <input type="number" [(ngModel)]="newZoneCapacity" min="1" class="inp inp--sm" />
+    </div>
+    <div class="actions">
+      <button class="btn-save" (click)="saveZone()" [disabled]="!newZoneName.trim() || saving">
+        {{ saving ? 'Saving...' : 'Save Zone' }}
+      </button>
+      <button class="btn-discard" (click)="discardPending()">Discard</button>
+    </div>
+  </div>
+
+  <!-- Zone list -->
+  <div class="zone-list">
+    <div *ngFor="let zone of zones" class="zone-item">
+      <div class="zone-item__info">
+        <span class="zone-dot"></span>
+        <span class="zone-name">{{ zone.name }}</span>
+        <span class="zone-cap">max {{ zone.maxCapacity }}</span>
+      </div>
+      <button class="btn-delete" (click)="deleteZone(zone.id)" title="Delete zone">&#x1F5D1;</button>
+    </div>
+    <p class="empty" *ngIf="zones.length === 0">No zones defined yet.</p>
+  </div>
+</div>

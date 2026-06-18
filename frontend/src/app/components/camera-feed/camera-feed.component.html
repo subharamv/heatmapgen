@@ -1,0 +1,41 @@
+<div class="feed-wrapper">
+
+  <!-- Loading / initializing state -->
+  <div class="feed-loading" *ngIf="loading && !cameraOff">
+    <div class="spinner"></div>
+    <span>Connecting to camera…</span>
+  </div>
+
+  <!-- MJPEG stream — browser keeps one persistent connection; no JS polling needed -->
+  <img
+    #feedImg
+    [attr.src]="frameUrl || null"
+    (load)="onImgLoad()"
+    (error)="onImgError()"
+    class="feed-img"
+    [class.hidden]="loading"
+    alt=""
+  />
+
+  <canvas
+    #canvas
+    class="overlay-canvas"
+    [class.drawing]="drawingMode"
+    (click)="onCanvasClick($event)"
+    (dblclick)="onCanvasDblClick($event)"
+  ></canvas>
+
+  <div class="feed-hint" *ngIf="drawingMode">
+    Click to add points &bull; Double-click to close zone
+    <button (click)="cancelDrawing()">Cancel</button>
+  </div>
+
+  <div class="camera-off-overlay" *ngIf="cameraOff">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/>
+      <line x1="12" y1="2" x2="12" y2="12"/>
+    </svg>
+    <span>Camera Off</span>
+  </div>
+
+</div>

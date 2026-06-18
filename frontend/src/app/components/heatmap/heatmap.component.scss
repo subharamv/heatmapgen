@@ -1,0 +1,198 @@
+.heatmap-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .actions { display: flex; align-items: center; gap: 6px; }
+    .updated { font-size: 11px; color: #404860; }
+  }
+}
+
+// ── Tab bar ────────────────────────────────────────────────────────────
+.view-tabs {
+  display: flex;
+  gap: 4px;
+
+  button {
+    background: #12141f;
+    border: 1px solid #252838;
+    color: #505870;
+    padding: 5px 13px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    &:hover  { background: #1e2130; color: #909ab8; }
+    &.active {
+      background: linear-gradient(135deg, #082030, #061824);
+      border-color: #00c8e8;
+      color: #00e5ff;
+      box-shadow: 0 0 10px rgba(0,200,255,0.15);
+    }
+
+    // Live tab special styling
+    &.live-tab {
+      border-color: rgba(255,60,60,0.3);
+      color: #ff7070;
+
+      &.active {
+        background: linear-gradient(135deg, #250808, #180606);
+        border-color: #ff3c3c;
+        color: #ff6060;
+        box-shadow: 0 0 10px rgba(255,60,60,0.18);
+      }
+    }
+  }
+}
+
+// Pulsing live indicator dot
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff4040;
+  box-shadow: 0 0 6px #ff2020;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+
+// ── View containers ────────────────────────────────────────────────────
+.view-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.view-label {
+  font-size: 11px;
+  color: #404860;
+  letter-spacing: 0.3px;
+}
+
+// ── Classic heatmap ────────────────────────────────────────────────────
+.heatmap-container {
+  flex: 1;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(0,180,220,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,220,0.04) 1px, transparent 1px),
+    #07090f;
+  background-size: 32px 32px;
+  border: 1px solid #1e2130;
+  min-height: 280px;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+    pointer-events: none;
+  }
+}
+
+// ── Spatial canvases ───────────────────────────────────────────────────
+.spatial-canvas {
+  flex: 1;
+  width: 100%;
+  min-height: 320px;
+  border-radius: 8px;
+  background: #060a12;
+  border: 1px solid #1a1d2c;
+  display: block;
+}
+
+// ── Color-scale legend ─────────────────────────────────────────────────
+.scale-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #404860;
+
+  .gradient-bar {
+    flex: 1;
+    height: 7px;
+    border-radius: 4px;
+    background: linear-gradient(
+      to right,
+      #00005a, #0044dd, #0088ff, #00e8c8, #50ff00, #ddee00, #ff6400, #ff0000
+    );
+    box-shadow: 0 0 8px rgba(0,150,255,0.2);
+  }
+
+  &.live-legend {
+    color: #603040;
+    font-style: italic;
+    justify-content: center;
+  }
+}
+
+// ── Live header badges ─────────────────────────────────────────────────
+.live-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff5050;
+  background: rgba(255,40,40,0.12);
+  border: 1px solid rgba(255,60,60,0.3);
+  padding: 3px 8px;
+  border-radius: 5px;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.live-count {
+  font-size: 11px;
+  color: #80a0c0;
+  min-width: 60px;
+}
+
+// ── Buttons ────────────────────────────────────────────────────────────
+.btn-refresh, .btn-reset, .btn-auto {
+  background: #161820;
+  border: 1px solid #2a2d3e;
+  color: #808ab0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s;
+  &:disabled { opacity: 0.45; }
+  &:hover:not(:disabled) { background: #222436; color: #a0aacc; }
+}
+
+.btn-auto.active {
+  color: #00e5ff;
+  border-color: rgba(0,200,255,0.4);
+  background: rgba(0,80,110,0.2);
+}
+
+.btn-reset { color: #ff7040; }
+
+.empty-hint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #303448;
+  font-size: 13px;
+}

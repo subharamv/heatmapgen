@@ -1,0 +1,25 @@
+<div class="alerts-panel">
+  <div class="alerts-panel__header">
+    <h3>&#9888; Alerts</h3>
+    <button class="btn-clear" (click)="clearAlerts()" *ngIf="alerts.length">Clear</button>
+  </div>
+
+  <div class="alerts-list">
+    <div *ngFor="let alert of alerts" class="alert-item">
+      <div class="alert-icon">&#9888;</div>
+      <div class="alert-body">
+        <div class="alert-title">
+          <strong>{{ getZoneName(alert) }}</strong> exceeded limit
+        </div>
+        <div class="alert-detail">
+          {{ alert.count }} people &bull; limit {{ getLimit(alert) }}
+        </div>
+      </div>
+      <div class="alert-time">{{ formatTime(getTimestamp(alert)) }}</div>
+    </div>
+
+    <div class="empty" *ngIf="alerts.length === 0">
+      <span>No alerts yet</span>
+    </div>
+  </div>
+</div>

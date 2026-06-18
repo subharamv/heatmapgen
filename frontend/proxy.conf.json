@@ -1,0 +1,9 @@
+{
+  "/detection-api": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "pathRewrite": { "^/detection-api": "" },
+    "changeOrigin": true,
+    "logLevel": "warn"
+  }
+}

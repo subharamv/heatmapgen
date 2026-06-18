@@ -1,0 +1,79 @@
+<div class="heatmap-panel">
+
+  <div class="heatmap-panel__header">
+    <div class="view-tabs">
+      <button [class.active]="view==='classic'"  (click)="setView('classic')">Classic</button>
+      <button [class.active]="view==='birdseye'" (click)="setView('birdseye')">Bird's Eye</button>
+      <button [class.active]="view==='3d'"       (click)="setView('3d')">3D History</button>
+      <button [class.active]="view==='live3d'"   (click)="setView('live3d')" class="live-tab">
+        <span class="live-dot"></span> Live 3D
+      </button>
+    </div>
+    <div class="actions">
+      <span class="updated" *ngIf="lastUpdated && view !== 'live3d'">{{ lastUpdated }}</span>
+      <ng-container *ngIf="view !== 'live3d'">
+        <button class="btn-auto" [class.active]="autoRefresh" (click)="autoRefresh = !autoRefresh"
+                [title]="autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'">
+          {{ autoRefresh ? '⏸ Auto' : '▶ Auto' }}
+        </button>
+        <button class="btn-refresh" (click)="refresh()" [disabled]="loading">
+          {{ loading ? '…' : '↻ Refresh' }}
+        </button>
+        <button class="btn-reset" (click)="reset()">Reset</button>
+      </ng-container>
+      <ng-container *ngIf="view === 'live3d'">
+        <span class="live-badge">● LIVE</span>
+        <span class="live-count">{{ liveCount }} person{{ liveCount !== 1 ? 's' : '' }}</span>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Classic -->
+  <div class="view-body" *ngIf="view === 'classic'">
+    <div class="heatmap-container" #heatmapContainer></div>
+  </div>
+
+  <!-- Bird's Eye -->
+  <div class="view-body" *ngIf="view === 'birdseye'">
+    <div class="view-label">Top-down field-of-view &bull; distance estimated from bounding-box height</div>
+    <canvas #birdsEyeCanvas class="spatial-canvas"></canvas>
+    <div class="scale-legend">
+      <span>Low density</span>
+      <div class="gradient-bar"></div>
+      <span>High density</span>
+    </div>
+  </div>
+
+  <!-- 3D Historical -->
+  <div class="view-body" *ngIf="view === '3d'">
+    <div class="view-label">3D field-of-view &bull; pillar height = dwell density (session history)</div>
+    <canvas #perspCanvas class="spatial-canvas"></canvas>
+    <div class="scale-legend">
+      <span>Low density</span>
+      <div class="gradient-bar"></div>
+      <span>High density</span>
+    </div>
+  </div>
+
+  <!-- Live 3D -->
+  <div class="view-body" *ngIf="view === 'live3d'">
+    <div class="view-label">Real-time positions &bull; each colour = one person &bull; height = proximity to camera</div>
+    <canvas #live3dCanvas class="spatial-canvas"></canvas>
+    <div class="scale-legend live-legend">
+      <span>Each person gets a unique colour — heatmap clears when no one is detected</span>
+    </div>
+  </div>
+
+  <!-- Classic legend -->
+  <div class="scale-legend" *ngIf="view === 'classic'">
+    <span>Low</span>
+    <div class="gradient-bar"></div>
+    <span>High</span>
+  </div>
+
+  <div class="empty-hint"
+       *ngIf="!loading && view !== 'classic' && view !== 'live3d' && (!spatialData || !spatialData.points.length)">
+    No spatial data yet — walk in front of the camera first.
+  </div>
+
+</div>

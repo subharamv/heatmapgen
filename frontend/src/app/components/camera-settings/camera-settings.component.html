@@ -1,0 +1,176 @@
+<div class="controls">
+
+  <!-- Power toggle -->
+  <button
+    class="power-btn"
+    [class.on]="cameraOn"
+    [class.off]="!cameraOn"
+    [disabled]="toggling"
+    (click)="toggleCamera()"
+    [title]="cameraOn ? 'Turn camera off' : 'Turn camera on'"
+  >
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+      <path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/>
+      <line x1="12" y1="2" x2="12" y2="12"/>
+    </svg>
+    {{ cameraOn ? 'On' : 'Off' }}
+  </button>
+
+  <!-- Gear / settings toggle -->
+  <button class="settings-btn" (click)="open = !open" [class.active]="open" title="Camera Settings">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    Settings
+  </button>
+
+</div>
+
+<!-- Settings panel -->
+<div class="settings-panel" *ngIf="open">
+  <div class="settings-panel__header">
+    <div class="panel-tabs">
+      <button [class.active]="activeTab === 'quality'" (click)="activeTab = 'quality'">Quality</button>
+      <button [class.active]="activeTab === 'detection'" (click)="activeTab = 'detection'">Detection</button>
+    </div>
+    <button class="close-btn" (click)="open = false">✕</button>
+  </div>
+
+  <!-- ── Quality tab ── -->
+  <ng-container *ngIf="activeTab === 'quality'">
+    <div class="settings-panel__body">
+
+      <div class="field">
+        <label>Resolution</label>
+        <select [(ngModel)]="selectedResIdx" (ngModelChange)="onResolutionChange()" [disabled]="!cameraOn">
+          <option *ngFor="let r of resolutions; let i = index" [value]="i">{{ r.label }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>
+          JPEG Quality
+          <span class="field__val">{{ settings.quality }}</span>
+        </label>
+        <input type="range" min="40" max="100" step="1"
+          [(ngModel)]="settings.quality" class="slider" [disabled]="!cameraOn"/>
+        <div class="slider-hints"><span>Smaller file</span><span>Sharper</span></div>
+      </div>
+
+      <div class="field">
+        <label>Frame Rate</label>
+        <div class="fps-grid">
+          <button *ngFor="let f of fpsOptions" class="fps-btn"
+            [class.active]="settings.fps === f" [disabled]="!cameraOn"
+            (click)="settings.fps = f">{{ f }} fps</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="settings-panel__footer">
+      <button class="apply-btn" (click)="apply()" [disabled]="saving || !cameraOn">
+        {{ saving ? 'Applying…' : saved ? '✓ Applied' : 'Apply' }}
+      </button>
+      <span class="restart-note">{{ cameraOn ? 'Camera restarts briefly on apply' : 'Turn camera on to change settings' }}</span>
+    </div>
+  </ng-container>
+
+  <!-- ── Detection tab ── -->
+  <ng-container *ngIf="activeTab === 'detection'">
+    <div class="settings-panel__body">
+
+      <div class="field">
+        <label>Model</label>
+        <select [(ngModel)]="det.model_name">
+          <option *ngFor="let m of modelOptions" [value]="m.value">{{ m.label }}</option>
+        </select>
+        <span class="field__hint">Larger model = better accuracy, slower</span>
+      </div>
+
+      <div class="field">
+        <label>Inference Size
+          <span class="field__val">{{ det.imgsz }} px</span>
+        </label>
+        <div class="fps-grid">
+          <button *ngFor="let s of imgszOptions" class="fps-btn"
+            [class.active]="det.imgsz === s.value"
+            (click)="det.imgsz = s.value">{{ s.label }}</button>
+        </div>
+        <span class="field__hint">1280 px detects small/distant people better</span>
+      </div>
+
+      <div class="field">
+        <label>
+          Min Confidence
+          <span class="field__val">{{ det.conf_threshold | number:'1.2-2' }}</span>
+        </label>
+        <input type="range" min="0.15" max="0.75" step="0.05"
+          [(ngModel)]="det.conf_threshold" class="slider"/>
+        <div class="slider-hints"><span>Catch more (+ noise)</span><span>Less noise</span></div>
+      </div>
+
+      <div class="field">
+        <label>Preprocessing (CLAHE + Sharpen)</label>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="det.preprocessing"/>
+          <span class="toggle__track"></span>
+          <span class="toggle__label">{{ det.preprocessing ? 'On' : 'Off' }}</span>
+        </label>
+        <span class="field__hint">Enhances contrast and edges for far-field</span>
+      </div>
+
+      <div class="field">
+        <label>Long-Range Tiling</label>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="det.use_tiling"/>
+          <span class="toggle__track"></span>
+          <span class="toggle__label">{{ det.use_tiling ? 'On' : 'Off' }}</span>
+        </label>
+        <span class="field__hint">Runs extra passes on the far-field zone. Slower but catches very small people.</span>
+      </div>
+
+      <div class="field" *ngIf="det.use_tiling">
+        <label>
+          Focal Zone (top of frame)
+          <span class="field__val">{{ (det.focal_ratio * 100) | number:'1.0-0' }}%</span>
+        </label>
+        <input type="range" min="0.2" max="0.9" step="0.05"
+          [(ngModel)]="det.focal_ratio" class="slider"/>
+        <div class="slider-hints"><span>Narrow far field</span><span>Most of frame</span></div>
+      </div>
+
+      <div class="field-divider">Distance Calibration</div>
+
+      <div class="field">
+        <label>
+          Visible body height
+          <span class="field__val">{{ det.person_height_m | number:'1.1-2' }} m</span>
+        </label>
+        <input type="range" min="0.2" max="1.9" step="0.05"
+          [(ngModel)]="det.person_height_m" class="slider"/>
+        <div class="slider-hints"><span>Head only ~0.2m</span><span>Full body 1.9m</span></div>
+        <span class="field__hint">Seated/close-up: 0.3–0.5 m &nbsp;·&nbsp; Standing far: 1.5–1.8 m</span>
+      </div>
+
+      <div class="field">
+        <label>
+          Camera V-FOV
+          <span class="field__val">{{ det.vfov_deg | number:'1.0-0' }}°</span>
+        </label>
+        <input type="range" min="30" max="110" step="1"
+          [(ngModel)]="det.vfov_deg" class="slider"/>
+        <div class="slider-hints"><span>Narrow 30°</span><span>Wide 110°</span></div>
+        <span class="field__hint">Most laptop webcams: 47–65° vertical</span>
+      </div>
+
+    </div>
+    <div class="settings-panel__footer">
+      <button class="apply-btn" (click)="applyDetection()" [disabled]="savingDet">
+        {{ savingDet ? 'Applying…' : savedDet ? '✓ Applied' : 'Apply' }}
+      </button>
+      <span class="restart-note">Detector reloads on apply</span>
+    </div>
+  </ng-container>
+
+</div>

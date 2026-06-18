@@ -1,0 +1,63 @@
+.alerts-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 { font-size: 14px; color: #ff8040; text-transform: uppercase; letter-spacing: 1px; }
+  }
+}
+
+.btn-clear {
+  background: none;
+  border: 1px solid #3a3d50;
+  color: #6070a0;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  &:hover { color: #ff5555; border-color: #ff5555; }
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 80, 0, 0.1);
+  border: 1px solid rgba(255, 80, 0, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  animation: slideIn 0.3s ease;
+
+  .alert-icon { font-size: 18px; color: #ff8040; margin-top: 1px; }
+
+  .alert-body { flex: 1; }
+  .alert-title { font-size: 13px; }
+  .alert-detail { font-size: 11px; color: #a0a8c0; margin-top: 2px; }
+  .alert-time { font-size: 11px; color: #505870; white-space: nowrap; }
+}
+
+.empty {
+  text-align: center;
+  padding: 24px 0;
+  color: #404560;
+  font-size: 13px;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
